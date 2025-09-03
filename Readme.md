@@ -1,7 +1,7 @@
 # Личный проект «YetiCave»
 
 * Студент: [George](https://up.htmlacademy.ru/php-individual/1/user/2668963).
-* Наставник: `Неизвестно`.
+* Наставник: Денис Ходаковский.
 
 ---
 
