@@ -13,7 +13,18 @@ $ads =
 ["name"=>"Маска Oakley Canopy", "cat"=>$categories[5], "price"=>5400, "URL_img"=>"img/lot-6.jpg"]
 ];
 
+function format_price($price){
+    $price = ceil($price);
+
+    if ($price < 1000){
+        return $price." ₽";
+    }
+
+    return number_format($price, 0, '', ' ')." ₽";
+}
+
 ?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -38,7 +49,6 @@ $ads =
         <a class="main-header__add-lot button" href="pages/add-lot.html">Добавить лот</a>
 
         <nav class="user-menu">
-
         <!-- здесь должен быть PHP код для показа меню и данных пользователя -->
         <?php if ($is_auth == 1): ?>
             <div class="user-menu__logged">
@@ -92,7 +102,7 @@ $ads =
                     <div class="lot__state">
                         <div class="lot__rate">
                             <span class="lot__amount">Стартовая цена</span>
-                            <span class="lot__cost"><?=$ad["price"]?><b class="rub">р</b></span>
+                            <span class="lot__cost"><?=format_price($ad["price"])?></span>
                         </div>
                         <div class="lot__timer timer">
                             12:23
