@@ -1,19 +1,36 @@
 <?php
 date_default_timezone_set("Europe/Samara");
 require_once 'helpers.php';
+$db = require_once 'db.php';
 
 $isAuth = rand(0, 1);
 $userName = 'Gera'; // укажите здесь ваше имя
-$categories = ["Доски и лыжи", "Крепления", "Ботинки", "Одежда", "Инструменты", "Разное"];
-$ads = 
-[
-["name"=>"2014 Rossignol District Snowboard", "cat"=>$categories[0], "price"=>10999, "urlImg"=>"img/lot-1.jpg", "expirationDate"=>"2025-09-12"],
-["name"=>"DC Ply Mens 2016/2017 Snowboard", "cat"=>$categories[0], "price"=>159999, "urlImg"=>"img/lot-2.jpg", "expirationDate"=>"2025-09-20"],
-["name"=>"Крепления Union Contact Pro 2015 года размер L/XL", "cat"=>$categories[1], "price"=>8000, "urlImg"=>"img/lot-3.jpg", "expirationDate"=>"2025-09-18"],
-["name"=>"Ботинки для сноуборда DC Mutiny Charocal", "cat"=>$categories[2], "price"=>10999, "urlImg"=>"img/lot-4.jpg", "expirationDate"=>"2025-09-15"],
-["name"=>"Куртка для сноуборда DC Mutiny Charocal", "cat"=>$categories[3], "price"=>7500, "urlImg"=>"img/lot-5.jpg", "expirationDate"=>"2025-09-20"],
-["name"=>"Маска Oakley Canopy", "cat"=>$categories[5], "price"=>5400, "urlImg"=>"img/lot-6.jpg", "expirationDate"=>"2025-09-17"]
-];
+
+$link = mysqli_connect($db['host'], $db['user'], $db['password'], $db['database']);
+mysqli_set_charset($link, 'utf8');
+
+if (!$link) {
+    $error = mysqli_connect_error();
+    $contant = include_remplates('error.php', ['error' => $error]);
+} else {
+    /* пишем текст запроса */
+    $sql = 'SELECT * FROM categories';
+    /* получаем все категории */
+    $result = mysqli_query($link, $sql);
+    if ($result) {
+        $categories = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+
+    $sql = 'SELECT l.title, start_price, img_url, bet_step, l.expiration_date, c.title AS category FROM lots l '
+         . 'JOIN categories c ON category_id = c.id '
+         . 'WHERE expiration_date > CURDATE() '
+         . 'ORDER BY date_add DESC LIMIT 6';
+    $result = mysqli_query($link, $sql);
+    if ($result) {
+        $ads = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    }
+}
+
 
 function formatPrice($price) {
     $price = ceil($price);
@@ -51,6 +68,3 @@ $layoutContent = include_template('layout.php', [
 ]);
 
 print($layoutContent);
-
-
-
