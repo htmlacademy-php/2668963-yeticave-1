@@ -144,3 +144,35 @@ function include_template($name, array $data = []) {
 }
 
 
+# Выставление часового пояса
+date_default_timezone_set("Europe/Samara");
+
+# Подключение файла доступа к БД
+$db = require_once 'db.php';
+
+# Заглушка логина
+$isAuth = rand(0, 1);
+$userName = 'Gera'; // укажите здесь ваше имя
+
+# Функция форматирования цены: 159999 -> 159 999 ₽
+function formatPrice($price) {
+    $price = ceil($price);
+
+    if ($price < 1000) {
+        return $price." ₽";
+    }
+
+    return number_format($price, 0, '', ' ')." ₽";
+}
+
+# Функция расчёта времени до определённой даты в формате ЧЧ:ММ
+function getTimeToDate($date) {
+    $currentDate = date_create("now");
+    $finishDate = date_create($date);
+    $remainingTime = date_diff($currentDate, $finishDate);
+
+    $hours = $remainingTime->days * 24 + $remainingTime->h;
+    $minutes = $remainingTime->i;
+     
+    return [$hours, $minutes];
+}

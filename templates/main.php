@@ -23,11 +23,11 @@
             </div>
             <div class="lot__info">
                 <span class="lot__category"><?= htmlspecialchars($ad["category"]) ?></span>
-                <h3 class="lot__title"><a class="text-link" href="pages/lot.html"><?= htmlspecialchars($ad["title"]) ?></a></h3>
+                <h3 class="lot__title"><a class="text-link" href="index.php?source=lot&id=<?= $ad["id"] ?>"><?= htmlspecialchars($ad["title"]) ?></a></h3>
                 <div class="lot__state">
                     <div class="lot__rate">
                         <span class="lot__amount">Стартовая цена</span>
-                        <span class="lot__cost"><?= htmlspecialchars(formatPrice($ad["bet_step"])) ?></span>
+                        <span class="lot__cost"><?= htmlspecialchars(formatPrice($ad["start_price"])) ?></span>
                     </div>
                     <div class="lot__timer timer<?= getTimeToDate($ad["expiration_date"])[0] < 1 ? ' timer--finishing' : '' ?>">
                         <?= str_pad(getTimeToDate($ad["expiration_date"])[0], 2, '0', STR_PAD_LEFT).':'.str_pad(getTimeToDate($ad["expiration_date"])[1], 2, '0', STR_PAD_LEFT) ?>

@@ -1,17 +1,12 @@
 <?php
-date_default_timezone_set("Europe/Samara");
 require_once 'helpers.php';
-$db = require_once 'db.php';
-
-$isAuth = rand(0, 1);
-$userName = 'Gera'; // укажите здесь ваше имя
 
 $link = mysqli_connect($db['host'], $db['user'], $db['password'], $db['database']);
 mysqli_set_charset($link, 'utf8');
 
 if (!$link) {
     $error = mysqli_connect_error();
-    $contant = include_remplates('error.php', ['error' => $error]);
+    $contant = include_templates('error.php', ['error' => $error]);
 } else {
     /* пишем текст запроса */
     $sql = 'SELECT * FROM categories';
@@ -21,7 +16,7 @@ if (!$link) {
         $categories = mysqli_fetch_all($result, MYSQLI_ASSOC);
     }
 
-    $sql = 'SELECT l.title, start_price, img_url, bet_step, l.expiration_date, c.title AS category FROM lots l '
+    $sql = 'SELECT l.id, l.title, start_price, img_url, l.expiration_date, c.title AS category FROM lots l '
          . 'JOIN categories c ON category_id = c.id '
          . 'WHERE expiration_date > CURDATE() '
          . 'ORDER BY date_add DESC LIMIT 6';
@@ -31,33 +26,57 @@ if (!$link) {
     }
 }
 
+if (!$link) {
+    $error = mysqli_connect_error();
+    $contant = include_templates('error.php', ['error' => $error]);
+} else {
 
-function formatPrice($price) {
-    $price = ceil($price);
-
-    if ($price < 1000) {
-        return $price." ₽";
+    if (isset($_GET['source'])) {
+        $id = $_GET['id'] ?? null;
+        if (!$id || !ctype_digit($id)) {
+            http_response_code(404);
+            echo "404 — Лот не найден";
+            exit;
+        }
     }
 
-    return number_format($price, 0, '', ' ')." ₽";
+    $sql = 'SELECT l.id, l.title, start_price, bet_step, img_url, l.expiration_date, c.title AS category, about FROM lots l '
+         . 'JOIN categories c ON category_id = c.id '
+         . 'WHERE l.id = ?';
+    $stmt = mysqli_prepare($link, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $_GET['id']);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $ad = mysqli_fetch_assoc($result);
+
+    $sql = 'SELECT l.id, l.title, start_price, bet_step, COALESCE(MAX(b.amount), start_price) AS current_price '
+         . 'FROM lots l '
+         . 'LEFT JOIN bets b ON b.lot_id = l.id '
+         . 'WHERE l.id = ? GROUP BY l.id';
+    $stmt = mysqli_prepare($link, $sql);
+    mysqli_stmt_bind_param($stmt, 'i', $_GET['id']);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $bet = mysqli_fetch_assoc($result);
 }
 
-function getTimeToDate($date) {
-    $currentDate = date_create("now");
-    $finishDate = date_create($date);
-    $remainingTime = date_diff($currentDate, $finishDate);
-
-    $hours = $remainingTime->days * 24 + $remainingTime->h;
-    $minutes = $remainingTime->i;
-     
-    return [$hours, $minutes];
+if (isset($_GET['source']) && $_GET['source'] === 'lot') {
+    if (!$ad) {
+        http_response_code(404);
+        echo "404 — Лот не найден";
+        exit;
+    }
+    $pageContent = include_template('lot.php',[
+        'ad' => $ad,
+        'bet' => $bet
+    ]);
+} else {
+    $pageContent = include_template('main.php',[
+        'categories' => $categories,
+        'ads' => $ads
+    ]);
 }
 
-
-$pageContent = include_template('main.php',[
-    'categories' => $categories,
-    'ads' => $ads
-]);
 
 $layoutContent = include_template('layout.php', [
     'content' => $pageContent, 
