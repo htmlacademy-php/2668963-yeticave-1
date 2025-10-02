@@ -143,17 +143,6 @@ function include_template($name, array $data = []) {
     return $result;
 }
 
-
-# Выставление часового пояса
-date_default_timezone_set("Europe/Samara");
-
-# Подключение файла доступа к БД
-$db = require_once 'db.php';
-
-# Заглушка логина
-$isAuth = rand(0, 1);
-$userName = 'Gera'; // укажите здесь ваше имя
-
 # Функция форматирования цены: 159999 -> 159 999 ₽
 function formatPrice($price) {
     $price = ceil($price);
