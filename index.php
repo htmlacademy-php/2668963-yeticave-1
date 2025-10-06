@@ -20,10 +20,19 @@ if (!$link) {
 }
 
 $categories = getCategories($link);
+$categoryId = array_column($categories, 'id');
 
 $source = $_GET['source'] ?? null;
 switch ($source) {
 
+    case 'add':
+        $pageContent = include_template('add.php',[
+            'link' => $link,
+            'categories' => $categories,
+            'categoryId' => $categoryId    
+        ]);
+
+        break;
     case 'lot':     
         
         $id = $_GET['id'] ?? null;

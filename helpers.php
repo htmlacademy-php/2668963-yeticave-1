@@ -17,7 +17,7 @@ function is_date_valid(string $date) : bool {
     $format_to_check = 'Y-m-d';
     $dateTimeObj = date_create_from_format($format_to_check, $date);
 
-    return $dateTimeObj !== false && array_sum(date_get_last_errors()) === 0;
+    return $dateTimeObj !== false && !date_get_last_errors();
 }
 
 /**
@@ -164,4 +164,41 @@ function getTimeToDate($date) {
     $minutes = $remainingTime->i;
      
     return [$hours, $minutes];
+}
+
+
+function validateFilled($name) {
+    if (empty($_POST[$name])) {
+        return "Поле $name должно быть заполнено";
+    }
+    return null;
+}
+function validateCategory($name, $allowed_list) {
+    $cat = $_POST[$name];
+    
+    if (!in_array($cat, $allowed_list)) {
+        return "Указана несуществующая категория";
+    }
+    return null;
+}
+function isCorrectPrice($name) {
+    $num = $_POST[$name];
+
+    if ($num <= 0 || is_int($num)) {
+        return "Цена товара должна быть целым числом больше 0";
+    }
+    return null;
+}
+function isCorrectBet($name) {
+    $num = $_POST[$name];
+
+    if ($num <= 0 || is_int($num)) {
+        return "Ставка на товар должна быть целым числом больше 0";
+    }
+    return null;
+}
+
+function getPostVal($name)
+{
+    return $_POST[$name] ?? '';
 }
