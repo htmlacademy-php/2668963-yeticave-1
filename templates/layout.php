@@ -19,7 +19,7 @@
             <input type="search" name="search" placeholder="Поиск лота">
             <input class="main-header__search-btn" type="submit" name="find" value="Найти">
         </form>
-        <a class="main-header__add-lot button" href="pages/add-lot.html">Добавить лот</a>
+        <a class="main-header__add-lot button" href="index.php?source=add">Добавить лот</a>
 
         <nav class="user-menu">
         <!-- здесь должен быть PHP код для показа меню и данных пользователя -->
@@ -32,10 +32,10 @@
         <?php else: ?>
             <ul class="user-menu__list">
                 <li class="user-menu__item">
-                    <a href="#">Регистрация</a>
+                    <a href="index.php?source=sign-up">Регистрация</a>
                 </li>
                 <li class="user-menu__item">
-                    <a href="#">Вход</a>
+                    <a href="index.php?source=login">Вход</a>
                 </li>
             </ul>
 

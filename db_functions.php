@@ -8,6 +8,14 @@ function getCategories($link): array
     return $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
 }
 
+function getUsersEmails($link): array
+{
+    $sql = 'SELECT email FROM users';
+    $result = mysqli_query($link, $sql);
+    
+    return $result ? array_column(mysqli_fetch_all($result, MYSQLI_ASSOC), 'email') : [];
+}
+
 
 function getAdsList($link): array
 {

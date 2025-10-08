@@ -2,6 +2,7 @@
 
 require_once 'helpers.php';
 require_once 'db_functions.php';
+require_once 'formHelper.php';
 $db = require_once 'db.php'; // Подключение файла доступа к БД
 
 
@@ -21,20 +22,34 @@ if (!$link) {
 
 $categories = getCategories($link);
 $categoryId = array_column($categories, 'id');
+$usersEmails = getUsersEmails($link);
 
 $source = $_GET['source'] ?? null;
+
 switch ($source) {
 
-    case 'add':
-        $pageContent = include_template('add.php',[
-            'link' => $link,
-            'categories' => $categories,
-            'categoryId' => $categoryId    
+    case 'sign-up':
+        $errors = regFormValidate($link, $usersEmails);
+        $pageContent = include_template('sign-up.php',[
+            'errors' => $errors
         ]);
-
         break;
+
+    case 'login':
+        $pageContent = include_template('login.php',[
+
+        ]);
+        break;
+
+    case 'add':
+        $errors = addLotFormValidate($link, $categoryId);
+        $pageContent = include_template('add.php',[
+            'categories' => $categories,
+            'errors' => $errors
+        ]);
+        break;
+
     case 'lot':     
-        
         $id = $_GET['id'] ?? null;
         if (!$id || !ctype_digit($id)) {
             http_response_code(404);
@@ -54,10 +69,9 @@ switch ($source) {
             'ad' => $ad,
             'bet' => $bet
         ]);
-
         break;
-    default:
 
+    default:
         $ads = getAdsList($link);        
         $pageContent = include_template('main.php',[
             'categories' => $categories,

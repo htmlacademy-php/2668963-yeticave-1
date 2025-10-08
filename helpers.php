@@ -198,6 +198,24 @@ function isCorrectBet($name) {
     return null;
 }
 
+function validateEmail($name, $notAllowed)  {
+    $email = $_POST[$name];
+
+    if (empty($email)) {
+        return validateFilled($name);
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return "Введите корректный email";
+    }
+
+    if (in_array($email, $notAllowed)) {
+        return "Пользователь существует, пожалуйста, войдите или сбросьте пароль";
+    }
+
+    return null;
+}
+
 function getPostVal($name)
 {
     return $_POST[$name] ?? '';
