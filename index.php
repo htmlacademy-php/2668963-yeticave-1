@@ -21,15 +21,15 @@ if (!$link) {
 }
 
 $categories = getCategories($link);
-$categoryId = array_column($categories, 'id');
-$usersEmails = getUsersEmails($link);
+$categoriesIds = array_column($categories, 'id');
+$usersEmailsList = getUsersEmails($link);
 
 $source = $_GET['source'] ?? null;
 
 switch ($source) {
 
     case 'sign-up':
-        $errors = regFormValidate($link, $usersEmails);
+        $errors = regFormValidate($link, $usersEmailsList);
         $pageContent = include_template('sign-up.php',[
             'errors' => $errors
         ]);
@@ -42,7 +42,7 @@ switch ($source) {
         break;
 
     case 'add':
-        $errors = addLotFormValidate($link, $categoryId);
+        $errors = addLotFormValidate($link, $categoriesIds);
         $pageContent = include_template('add.php',[
             'categories' => $categories,
             'errors' => $errors

@@ -1,6 +1,6 @@
 <?php
 
-function getCategories($link): array
+function getCategories(mysqli $link): array
 {
     $sql = 'SELECT * FROM categories';
     $result = mysqli_query($link, $sql);
@@ -8,7 +8,7 @@ function getCategories($link): array
     return $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
 }
 
-function getUsersEmails($link): array
+function getUsersEmails(mysqli $link): array
 {
     $sql = 'SELECT email FROM users';
     $result = mysqli_query($link, $sql);
@@ -17,7 +17,7 @@ function getUsersEmails($link): array
 }
 
 
-function getAdsList($link): array
+function getAdsList(mysqli $link): array
 {
     $sql = 'SELECT l.id, l.title, start_price, img_url, l.expiration_date, c.title AS category FROM lots l '
                 . 'JOIN categories c ON category_id = c.id '
@@ -29,7 +29,7 @@ function getAdsList($link): array
 }
 
 
-function getAd($link, $id): ?array
+function getAd(mysqli $link, int $id): ?array
 {
     $sql = 'SELECT l.id, l.title, start_price, bet_step, img_url, l.expiration_date, c.title AS category, about FROM lots l '
                 . 'JOIN categories c ON category_id = c.id '
@@ -43,7 +43,7 @@ function getAd($link, $id): ?array
 }
 
 
-function getMaxBet($link, $id): ?array
+function getMaxBet(mysqli $link, int $id): ?array
 {
     $sql = 'SELECT l.id, l.title, start_price, bet_step, COALESCE(MAX(b.amount), start_price) AS current_price '
                 . 'FROM lots l '

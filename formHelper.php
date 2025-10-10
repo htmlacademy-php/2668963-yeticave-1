@@ -1,6 +1,8 @@
 <?php
-
-function regFormValidate($link, $usersEmails){
+/**
+ * @param array<array-key, string> $usersEmailsList
+ */
+function regFormValidate(mysqli $link, array $usersEmailsList){
     $errors = [];
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -8,8 +10,8 @@ function regFormValidate($link, $usersEmails){
     }
 
     $rules = [
-        'email' => function() use ($usersEmails) {
-            return validateEmail('email', $usersEmails);
+        'email' => function() use ($usersEmailsList) {
+            return validateEmail('email', $usersEmailsList);
         },
         'password' => function() {
             return validateFilled('password');
@@ -49,7 +51,10 @@ function regFormValidate($link, $usersEmails){
 }
 
 
-function addLotFormValidate($link, $categoryId) {
+/**
+ * @param array<array-key, string> $categoriesIdsList
+ */
+function addLotFormValidate(mysqli $link, array $categoriesIdsList) {
     $errors = [];
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -60,8 +65,8 @@ function addLotFormValidate($link, $categoryId) {
         'lot-name' => function() {
             return validateFilled('lot-name');
         },
-        'category' => function() use ($categoryId) {
-            return validateCategory('category', $categoryId);
+        'category' => function() use ($categoriesIdsList) {
+            return validateCategory('category', $categoriesIdsList);
         },
         'message' => function() {
             return validateFilled('message');

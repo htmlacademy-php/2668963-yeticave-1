@@ -144,7 +144,7 @@ function include_template($name, array $data = []) {
 }
 
 # Функция форматирования цены: 159999 -> 159 999 ₽
-function formatPrice($price) {
+function formatPrice(string $price) {
     $price = ceil($price);
 
     if ($price < 1000) {
@@ -155,7 +155,7 @@ function formatPrice($price) {
 }
 
 # Функция расчёта времени до определённой даты в формате ЧЧ:ММ
-function getTimeToDate($date) {
+function getTimeToDate(string $date) {
     $currentDate = date_create("now");
     $finishDate = date_create($date);
     $remainingTime = date_diff($currentDate, $finishDate);
@@ -167,56 +167,63 @@ function getTimeToDate($date) {
 }
 
 
-function validateFilled($name) {
-    if (empty($_POST[$name])) {
-        return "Поле $name должно быть заполнено";
+function validateFilled(string $fieldName) {
+    if (empty($_POST[$fieldName])) {
+        return "Поле $fieldName должно быть заполнено";
     }
     return null;
 }
-function validateCategory($name, $allowed_list) {
-    $cat = $_POST[$name];
+
+/**
+ * @param array<array-key, string> $allowedCatIdsList
+ */
+function validateCategory(string $fieldName, array $allowedCatIdsList) {
+    $fieldValue = $_POST[$fieldName];
     
-    if (!in_array($cat, $allowed_list)) {
+    if (!in_array($fieldValue, $allowedCatIdsList)) {
         return "Указана несуществующая категория";
     }
     return null;
 }
-function isCorrectPrice($name) {
-    $num = $_POST[$name];
+function isCorrectPrice(string $fieldName) {
+    $fieldValue = $_POST[$fieldName];
 
-    if ($num <= 0 || is_int($num)) {
+    if ($fieldValue <= 0 || is_int($fieldValue)) {
         return "Цена товара должна быть целым числом больше 0";
     }
     return null;
 }
-function isCorrectBet($name) {
-    $num = $_POST[$name];
+function isCorrectBet(string $fieldName) {
+    $fieldValue = $_POST[$fieldName];
 
-    if ($num <= 0 || is_int($num)) {
+    if ($fieldValue <= 0 || is_int($fieldValue)) {
         return "Ставка на товар должна быть целым числом больше 0";
     }
     return null;
 }
 
-function validateEmail($name, $notAllowed)  {
-    $email = $_POST[$name];
+/**
+ * @param array<array-key, string> $notAllowedEmails
+ */
+function validateEmail(string $fieldName, array $notAllowedEmails)  {
+    $fieldValue = $_POST[$fieldName];
 
-    if (empty($email)) {
-        return validateFilled($name);
+    if (empty($fieldValue)) {
+        return validateFilled($fieldName);
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!filter_var($fieldValue, FILTER_VALIDATE_EMAIL)) {
         return "Введите корректный email";
     }
 
-    if (in_array($email, $notAllowed)) {
+    if (in_array($fieldValue, $notAllowedEmails)) {
         return "Пользователь существует, пожалуйста, войдите или сбросьте пароль";
     }
 
     return null;
 }
 
-function getPostVal($name)
+function getPostVal(string $fieldName)
 {
-    return $_POST[$name] ?? '';
+    return $_POST[$fieldName] ?? '';
 }
