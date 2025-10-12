@@ -223,6 +223,28 @@ function validateEmail(string $fieldName, array $notAllowedEmails)  {
     return null;
 }
 
+/**
+ * @param array<array-key, string> $userEmails
+ */
+function validateLoginEmail(string $fieldName, array $userEmails)  {
+    $fieldValue = $_POST[$fieldName];
+    $flipedUserEmails = array_flip($userEmails);
+
+    if (empty($fieldValue)) {
+        return validateFilled($fieldName);
+    }
+
+    if (!filter_var($fieldValue, FILTER_VALIDATE_EMAIL)) {
+        return "Введите корректный email";
+    }
+
+    if (isset($fieldValue, $flipedUserEmails)) {
+        return null;
+    }
+
+    return "Пользователь не существует, пожалуйста, зарегистрируйтесь";
+}
+
 function getPostVal(string $fieldName)
 {
     return $_POST[$fieldName] ?? '';
