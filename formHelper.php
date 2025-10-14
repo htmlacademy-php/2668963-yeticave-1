@@ -24,10 +24,10 @@ function regFormValidate(mysqli $link, array $usersEmailsList){
         }
     ];
 
-    $user = filter_input_array(INPUT_POST, ['email' => FILTER_DEFAULT, 'password' => FILTER_DEFAULT, 
+    $newUser = filter_input_array(INPUT_POST, ['email' => FILTER_DEFAULT, 'password' => FILTER_DEFAULT, 
     'name' => FILTER_DEFAULT, 'message' => FILTER_DEFAULT], true);
 
-    foreach ($user as $key => $value) {
+    foreach ($newUser as $key => $value) {
         if (isset($rules[$key])) {
             $rule = $rules[$key];
             $errors[$key] = $rule($value);
@@ -36,10 +36,10 @@ function regFormValidate(mysqli $link, array $usersEmailsList){
     $errors = array_filter($errors);
 
     if (!count($errors)) {
-        $user['password'] = password_hash($user['password'], PASSWORD_DEFAULT);
+        $newUser['password'] = password_hash($newUser['password'], PASSWORD_DEFAULT);
         $sql = 'INSERT INTO users (date_add, email, password, name, contact) '
             . 'VALUES (NOW(), ?, ?, ?, ?)';
-        $stmt = db_get_prepare_stmt($link, $sql, $user);
+        $stmt = db_get_prepare_stmt($link, $sql, $newUser);
         $res = mysqli_stmt_execute($stmt);
 
         if ($res) {
@@ -51,10 +51,69 @@ function regFormValidate(mysqli $link, array $usersEmailsList){
 }
 
 
+
+/**
+ * @param array<array-key, string> $usersEmailsList
+ */
+function loginFormValidate(mysqli $link, array $usersEmailsList){
+    $errors = [];
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        return null;
+    }
+
+    $rules = [
+        'email' => function() use ($usersEmailsList) {
+            return validateLoginEmail('email', $usersEmailsList);
+        },
+        'password' => function() {
+            return validateFilled('password');
+        }
+    ];
+
+    $user = filter_input_array(INPUT_POST, ['email' => FILTER_DEFAULT, 'password' => FILTER_DEFAULT], true);
+
+    foreach ($user as $key => $value) {
+        if (isset($rules[$key])) {
+            $rule = $rules[$key];
+            $errors[$key] = $rule($value);
+        }
+    }
+    $errors = array_filter($errors);
+
+    if (!count($errors)) {
+        $sql = 'SELECT id, name, password FROM users '
+            . 'WHERE email = ?';
+        $stmt = mysqli_prepare($link, $sql);
+        mysqli_stmt_bind_param($stmt, 's', $user['email']);
+        mysqli_stmt_execute($stmt);    
+        $result = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($result);
+        $hashPassword = $row['password'];
+        $userName = $row['name'];
+        $userId = $row['id'];
+
+        if (password_verify($user['password'], $hashPassword)) {
+            $_SESSION['username'] = $userName;
+            $_SESSION['id'] = $userId;
+            header (header: "Location: index.php");
+        } else {
+            $errors['password'] = "Неверный пароль";
+        }
+
+        
+        
+    }
+    
+    return $errors;
+}
+
+
+
 /**
  * @param array<array-key, string> $categoriesIdsList
  */
-function addLotFormValidate(mysqli $link, array $categoriesIdsList) {
+function addLotFormValidate(mysqli $link, array $categoriesIdsList, int $userId) {
     $errors = [];
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -105,6 +164,8 @@ function addLotFormValidate(mysqli $link, array $categoriesIdsList) {
     }
     $errors = array_filter($errors);
 
+    $lot['authorId'] = $userId;
+
     if (!empty($_FILES['lot-img']['name'])) {
         $tmp_name = $_FILES['lot-img']['tmp_name'];
         $path = $_FILES['lot-img']['name'];
@@ -124,7 +185,7 @@ function addLotFormValidate(mysqli $link, array $categoriesIdsList) {
 
     if (!count($errors)) {
         $sql = 'INSERT INTO lots (date_add, title, category_id, about, start_price, bet_step, expiration_date, author_id, img_url) '
-            . 'VALUES (NOW(), ?, ?, ?, ?, ?, ?, 1, ?)';
+            . 'VALUES (NOW(), ?, ?, ?, ?, ?, ?, ?, ?)';
         $stmt = db_get_prepare_stmt($link, $sql, $lot);
         $res = mysqli_stmt_execute($stmt);
 

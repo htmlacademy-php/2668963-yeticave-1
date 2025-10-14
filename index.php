@@ -7,10 +7,13 @@ $db = require_once 'db.php'; // Подключение файла доступа
 
 
 date_default_timezone_set("Europe/Samara"); // Выставление часового пояса
-# Заглушка логина
-$isAuth = rand(0, 1);
-$userName = 'Gera'; // укажите здесь ваше имя
 
+session_start();
+
+if (isset($_SESSION['username'])) {
+    $userName = $_SESSION['username'];
+    $userId = $_SESSION['id']; 
+}
 
 $link = mysqli_connect($db['host'], $db['user'], $db['password'], $db['database']);
 mysqli_set_charset($link, 'utf8');
@@ -29,6 +32,11 @@ $source = $_GET['source'] ?? null;
 switch ($source) {
 
     case 'sign-up':
+        if (isset($_SESSION['username'])) {
+            http_response_code(403);
+            echo "Нет доступа";
+            exit;
+        }
         $errors = regFormValidate($link, $usersEmailsList);
         $pageContent = include_template('sign-up.php',[
             'errors' => $errors
@@ -36,13 +44,25 @@ switch ($source) {
         break;
 
     case 'login':
+        $errors = loginFormValidate($link, $usersEmailsList);
         $pageContent = include_template('login.php',[
+            'errors' => $errors
+        ]);
+        break;
+
+    case 'logout':
+        $pageContent = include_template('logout.php',[
 
         ]);
         break;
 
     case 'add':
-        $errors = addLotFormValidate($link, $categoriesIds);
+        if (!isset($_SESSION['username'])) {
+            http_response_code(403);
+            echo "Нет доступа";
+            exit;
+        }
+        $errors = addLotFormValidate($link, $categoriesIds, $userId);
         $pageContent = include_template('add.php',[
             'categories' => $categories,
             'errors' => $errors
@@ -83,8 +103,7 @@ switch ($source) {
 $layoutContent = include_template('layout.php', [
     'content' => $pageContent, 
     'title' => 'Главная',
-    'isAuth' => $isAuth,
-    'userName' => $userName,
+    'userName' => $userName ?? null,
     'categories' => $categories
 ]);
 
