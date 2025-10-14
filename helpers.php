@@ -238,7 +238,7 @@ function validateLoginEmail(string $fieldName, array $userEmails)  {
         return "Введите корректный email";
     }
 
-    if (isset($fieldValue, $flipedUserEmails)) {
+    if (isset($flipedUserEmails[$fieldValue])) {
         return null;
     }
 
