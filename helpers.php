@@ -249,3 +249,8 @@ function getPostVal(string $fieldName)
 {
     return $_POST[$fieldName] ?? '';
 }
+
+function getGetVal(string $fieldName)
+{
+    return $_GET[$fieldName] ?? '';
+}

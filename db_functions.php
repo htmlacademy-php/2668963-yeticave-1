@@ -29,6 +29,45 @@ function getAdsList(mysqli $link): array
 }
 
 
+function countFoundAds(mysqli $link): int
+{
+    $search = trim($_GET['search'] ?? '');
+    
+    $sql = 'SELECT COUNT(*) AS total FROM lots WHERE MATCH(title, about) AGAINST(?) AND expiration_date > CURDATE()';
+    
+    $stmt = mysqli_prepare($link, $sql);
+    mysqli_stmt_bind_param($stmt, 's', $search);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    return $row['total'];
+}
+
+
+function getFoundAds(mysqli $link, int $offset, int $limit): array
+{
+    $search = trim($_GET['search'] ?? '');
+
+    if ($search) {
+        $sql = 'SELECT l.id, l.title, start_price, img_url, l.expiration_date, c.title AS category FROM lots l '
+            . 'JOIN categories c ON category_id = c.id '
+            . 'WHERE MATCH(l.title, about) AGAINST(?) AND expiration_date > CURDATE() '
+            . 'ORDER BY date_add DESC LIMIT ? OFFSET ?';
+                
+        $stmt = mysqli_prepare($link, $sql);
+        mysqli_stmt_bind_param($stmt, 'sii', $search, $limit, $offset);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        return mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    } else {
+        return [];
+    }
+}
+
+
 function getAd(mysqli $link, int $id): ?array
 {
     $sql = 'SELECT l.id, l.title, start_price, bet_step, img_url, l.expiration_date, c.title AS category, about FROM lots l '
