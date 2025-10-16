@@ -37,6 +37,8 @@ CREATE TABLE lots (
     INDEX lot_title (title)
 );
 
+CREATE FULLTEXT INDEX lot_ft_search ON lots(title, about);
+
 CREATE TABLE bets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     date_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

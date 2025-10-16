@@ -91,6 +91,25 @@ switch ($source) {
         ]);
         break;
 
+    case 'search-page':
+
+        $totalLots = countFoundAds($link);
+
+        $limit = 9; // лотов на странице
+        $currentPage = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+
+        $offset = ($currentPage - 1) * $limit;
+        $totalPages = ceil($totalLots / $limit);
+
+        $ads = getFoundAds($link, $offset, $limit);
+
+        $pageContent = include_template('search-page.php',[
+            'ads' => $ads,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages
+        ]);
+        break;
+
     default:
         $ads = getAdsList($link);        
         $pageContent = include_template('main.php',[
