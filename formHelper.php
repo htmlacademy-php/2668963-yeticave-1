@@ -197,3 +197,50 @@ function addLotFormValidate(mysqli $link, array $categoriesIdsList, int $userId)
 
     return $errors;
 }
+
+
+/**
+ * @param array<array-key, string> $currentBet
+ */
+function addBetFormValidate(mysqli $link, array $currentBet) {
+    $errors = [];
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        return null;
+    }
+ 
+    $rules = [
+        'cost' => function() use ($currentBet) {
+            return validateBet('cost', $currentBet);
+        }
+    ];
+    
+    $bet = filter_input_array(INPUT_POST, ['cost' => FILTER_DEFAULT], true);
+
+    foreach ($bet as $key => $value) {
+        if (isset($rules[$key])) {
+            $rule = $rules[$key];
+            $errors[$key] = $rule($value);
+        }
+    }
+    $errors = array_filter($errors);
+
+    if ($_SESSION) {
+        $bet['user_id'] = $_SESSION['id'];
+    }
+    
+    $bet['lot_id'] = $_GET['id'];
+
+    if (!count($errors)) {
+        $sql = 'INSERT INTO bets (date_add, amount, user_id, lot_id) '
+            . 'VALUES (NOW(), ?, ?, ?)';
+        $stmt = db_get_prepare_stmt($link, $sql, $bet);
+        $res = mysqli_stmt_execute($stmt);
+
+        if ($res) {
+            header (header: "Location: index.php?source=lot&id=".$_GET['id']);
+        }
+    }   
+
+    return $errors;
+}

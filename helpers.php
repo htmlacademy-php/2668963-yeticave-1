@@ -254,3 +254,55 @@ function getGetVal(string $fieldName)
 {
     return $_GET[$fieldName] ?? '';
 }
+
+
+/**
+ * @param array<array-key, string> $currentBet
+ */
+function validateBet(string $fieldName, array $currentBet) {
+    $fieldValue = $_POST[$fieldName];
+
+    if (empty($fieldValue)) {
+        return validateFilled($fieldName);
+    }
+
+    if ((filter_var($fieldValue, FILTER_VALIDATE_INT) === false) || ($fieldValue < $currentBet["current_price"] + $currentBet["bet_step"])) {
+        return "Введите целое число больше текущей цены";
+    }
+
+    return null;
+}
+
+/**
+ * Преобразует дату в формат "5 минут назад", "вчера, в 21:30" и т.д.
+ *
+ * @param string $date Дата в формате "Y-m-d H:i:s"
+ * @return string
+ */
+function formatTimeAgo(string $date): string
+{
+    $timestamp = strtotime($date);
+    $diff = time() - $timestamp;
+
+    if ($diff < 60) {
+        return 'Меньше минуты назад';
+    }
+
+    $minutes = floor($diff / 60);
+    $hours = floor($diff / 3600);
+    $days = floor($diff / 86400);
+
+    if ($minutes < 60) {
+        return $minutes . ' ' . get_noun_plural_form($minutes, 'минута', 'минуты', 'минут') . ' назад';
+    }
+
+    if ($hours < 24) {
+        return $hours . ' ' . get_noun_plural_form($hours, 'час', 'часа', 'часов') . ' назад';
+    }
+
+    if ($days === 1.0) {
+        return 'Вчера, в ' . date('H:i', $timestamp);
+    }
+
+    return date('d.m.y \в H:i', $timestamp);
+}
