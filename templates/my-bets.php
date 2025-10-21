@@ -2,13 +2,11 @@
       <h2>Мои ставки</h2>
       <table class="rates__list">
             <?php foreach ($bets as $bet): ?>
-                <?php 
-                    $maxBet = getMaxBet($link, $bet["lot_id"]); 
-                                        
+                <?php                                         
                     $classname = ''; 
                     $isLotEnded = strtotime($bet["expiration_date"]) < time();
-                    $isUserWinner = $maxBet["betUser"] == $_SESSION["id"];
-                    $isLastBet = isset($maxBet["date_add"]) && $bet["date_add"] === $maxBet["date_add"];
+                    $isUserWinner = $maxBets[$bet['lot_id']]["betUser"] == $_SESSION["id"];
+                    $isLastBet = isset($maxBets[$bet['lot_id']]["date_add"]) && $bet["date_add"] === $maxBets[$bet['lot_id']]["date_add"];
 
                     if ($isLotEnded && $isUserWinner && $isLastBet) {
                         $classname = 'rates__item--win';

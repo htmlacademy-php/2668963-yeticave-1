@@ -29,7 +29,20 @@ $categories = getCategories($link);
 $categoriesIds = array_column($categories, 'id');
 $usersEmailsList = getUsersEmails($link);
 
+
+function parseMaxBets($link, $userId, $bets) {
+    
+    $maxBets = [];
+    foreach ($bets as $bet) {
+        $maxBets[$bet["lot_id"]] = getMaxBet($link, $bet["lot_id"]);
+    }
+    return $maxBets;
+
+}
+
 $source = $_GET['source'] ?? null;
+
+
 
 switch ($source) {
 
@@ -60,10 +73,11 @@ switch ($source) {
     
     case 'my-bets':
         $bets = getUserBets($link, $userId);
-        
+        $maxBets = parseMaxBets($link, $userId, $bets);
+
         $pageContent = include_template('my-bets.php',[
             'bets' => $bets,
-            'link' => $link
+            'maxBets' => $maxBets
         ]);
         break;
 
