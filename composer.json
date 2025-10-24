@@ -1,0 +1,12 @@
+{
+    "name": "hera/yeticave",
+    "description": "Lot store",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hera"
+        }
+    ],
+    "require": {}
+}

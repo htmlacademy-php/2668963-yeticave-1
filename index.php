@@ -1,12 +1,14 @@
 <?php
 
+date_default_timezone_set("Europe/Samara"); // Выставление часового пояса
+
 require_once 'helpers.php';
 require_once 'db_functions.php';
 require_once 'formHelper.php';
 $db = require_once 'db.php'; // Подключение файла доступа к БД
 
 
-date_default_timezone_set("Europe/Samara"); // Выставление часового пояса
+
 
 session_start();
 
@@ -27,7 +29,20 @@ $categories = getCategories($link);
 $categoriesIds = array_column($categories, 'id');
 $usersEmailsList = getUsersEmails($link);
 
+
+function parseMaxBets($link, $userId, $bets) {
+    
+    $maxBets = [];
+    foreach ($bets as $bet) {
+        $maxBets[$bet["lot_id"]] = getMaxBet($link, $bet["lot_id"]);
+    }
+    return $maxBets;
+
+}
+
 $source = $_GET['source'] ?? null;
+
+
 
 switch ($source) {
 
@@ -53,6 +68,16 @@ switch ($source) {
     case 'logout':
         $pageContent = include_template('logout.php',[
 
+        ]);
+        break;
+    
+    case 'my-bets':
+        $bets = getUserBets($link, $userId);
+        $maxBets = parseMaxBets($link, $userId, $bets);
+
+        $pageContent = include_template('my-bets.php',[
+            'bets' => $bets,
+            'maxBets' => $maxBets
         ]);
         break;
 
@@ -84,10 +109,16 @@ switch ($source) {
             exit;
         }
 
-        $bet = getMaxBet($link, $id);  
+        $bet = getMaxBet($link, $id); 
+        $lotBets = getLotBets($link, $id);
+
+        $errors = addBetFormValidate($link, $bet);
+
         $pageContent = include_template('lot.php',[
             'ad' => $ad,
-            'bet' => $bet
+            'bet' => $bet,
+            'lotBets' => $lotBets,
+            'errors' => $errors
         ]);
         break;
 
