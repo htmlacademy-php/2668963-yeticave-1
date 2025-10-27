@@ -92,13 +92,15 @@ function loginFormValidate(mysqli $link, array $usersEmailsList){
         $hashPassword = $row['password'];
         $userName = $row['name'];
         $userId = $row['id'];
+        $userEmail = $user['email'];
 
         if (password_verify($user['password'], $hashPassword)) {
             $_SESSION['username'] = $userName;
             $_SESSION['id'] = $userId;
+            $_SESSION['email'] = $userEmail;
             header (header: "Location: index.php");
         } else {
-            $errors['password'] = "Неверный пароль";
+            $errors['password'] = "Неверный логин и/или пароль";
         }
 
         
@@ -243,4 +245,13 @@ function addBetFormValidate(mysqli $link, array $currentBet) {
     }   
 
     return $errors;
+}
+
+
+function updateWinner(mysqli $link, int $lotId, int $winnerId) {   
+        $sql = 'UPDATE lots SET winner_id = ? '
+             . 'WHERE id = ?';
+
+        $stmt = db_get_prepare_stmt($link, $sql, [$winnerId, $lotId]);
+        $res = mysqli_stmt_execute($stmt);
 }

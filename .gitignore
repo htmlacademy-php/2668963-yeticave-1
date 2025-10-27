@@ -12,3 +12,4 @@ uploads/*
 .docker
 .env
 docker-compose.yml
+composer.phar

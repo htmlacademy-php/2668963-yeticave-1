@@ -2,12 +2,11 @@
 
 date_default_timezone_set("Europe/Samara"); // Выставление часового пояса
 
+require_once 'vendor/autoload.php';
 require_once 'helpers.php';
 require_once 'db_functions.php';
 require_once 'formHelper.php';
 $db = require_once 'db.php'; // Подключение файла доступа к БД
-
-
 
 
 session_start();
@@ -15,7 +14,9 @@ session_start();
 if (isset($_SESSION['username'])) {
     $userName = $_SESSION['username'];
     $userId = $_SESSION['id']; 
+    $userEmail = $_SESSION['email']; 
 }
+
 
 $link = mysqli_connect($db['host'], $db['user'], $db['password'], $db['database']);
 mysqli_set_charset($link, 'utf8');
@@ -43,6 +44,7 @@ function parseMaxBets($link, $userId, $bets) {
 $source = $_GET['source'] ?? null;
 
 
+require_once 'getwinner.php';
 
 switch ($source) {
 
