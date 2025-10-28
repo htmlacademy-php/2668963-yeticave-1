@@ -149,3 +149,20 @@ function getLotBets(mysqli $link, int $id): ?array
 
     return $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
 }
+
+function getExpirationLotsMaxBetList(mysqli $link): array
+{
+    $sql = 'SELECT u.email, u.name, l.id AS lotId, l.title AS title, l.winner_id, b.id AS betId, b.user_id AS betUserID, b.amount '
+                . 'FROM lots l '
+                . 'JOIN bets b ON l.id = b.lot_id '
+                . 'JOIN users u ON b.user_id = u.id '
+                . 'WHERE l.expiration_date <= CURDATE() '
+                . 'AND l.winner_id IS NULL '
+                . 'AND b.amount = ('
+                . 'SELECT MAX(b2.amount) '
+                . 'FROM bets b2 '
+                . 'WHERE b2.lot_id = l.id)';
+    $result = mysqli_query($link, $sql);
+    
+    return $result ? mysqli_fetch_all($result, MYSQLI_ASSOC) : [];
+}
