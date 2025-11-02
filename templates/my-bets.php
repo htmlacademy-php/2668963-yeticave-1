@@ -5,7 +5,7 @@
                 <?php                                         
                     $classname = ''; 
                     $isLotEnded = strtotime($bet["expiration_date"]) < time();
-                    $isUserWinner = $maxBets[$bet['lot_id']]["betUser"] == $_SESSION["id"];
+                    $isUserWinner = $maxBets[$bet['lot_id']]["betUser"] === $_SESSION["id"];
                     $isLastBet = isset($maxBets[$bet['lot_id']]["date_add"]) && $bet["date_add"] === $maxBets[$bet['lot_id']]["date_add"];
 
                     if ($isLotEnded && $isUserWinner && $isLastBet) {

@@ -20,7 +20,7 @@
             <option>Выберите категорию</option>
         <?php foreach ($categories as $category): ?>
             <option value="<?= htmlspecialchars($category['id']) ?>"
-            <?php if (htmlspecialchars($category['id']) == getPostVal('category')) : ?> selected<?php endif; ?>>
+            <?php if (htmlspecialchars($category['id']) === getPostVal('category')) : ?> selected<?php endif; ?>>
                 <?= htmlspecialchars($category['title']) ?>
             </option>
         <?php endforeach; ?>

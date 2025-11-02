@@ -1,6 +1,10 @@
 <?php
+
 /**
- * @param array<array-key, string> $usersEmailsList
+ * Проверка формы регистрации
+ * @param mysql $link Связь с БД
+ * @param array<array-key, string> $usersEmailsList Список уже зарегистрированных имейлов
+ * @return array Массив ошибок, пустой - если ошибок нет
  */
 function regFormValidate(mysqli $link, array $usersEmailsList){
     $errors = [];
@@ -51,9 +55,11 @@ function regFormValidate(mysqli $link, array $usersEmailsList){
 }
 
 
-
 /**
- * @param array<array-key, string> $usersEmailsList
+ * Проверка формы логина
+ * @param mysql $link Связь с БД
+ * @param array<array-key, string> $usersEmailsList Список уже зарегистрированных имейлов
+ * @return array Массив ошибок, пустой - если ошибок нет
  */
 function loginFormValidate(mysqli $link, array $usersEmailsList){
     $errors = [];
@@ -101,19 +107,19 @@ function loginFormValidate(mysqli $link, array $usersEmailsList){
             header (header: "Location: index.php");
         } else {
             $errors['password'] = "Неверный логин и/или пароль";
-        }
-
-        
-        
+        }  
     }
     
     return $errors;
 }
 
 
-
 /**
- * @param array<array-key, string> $categoriesIdsList
+ * Проверка формы добавления лота
+ * @param mysql $link Связь с БД
+ * @param array<array-key, string> $categoriesIdsList Список ID существующих категорий
+ * @param int $userId ID пользователя добавляющего лот
+ * @return array Массив ошибок, пустой - если ошибок нет
  */
 function addLotFormValidate(mysqli $link, array $categoriesIdsList, int $userId) {
     $errors = [];
@@ -202,9 +208,13 @@ function addLotFormValidate(mysqli $link, array $categoriesIdsList, int $userId)
 
 
 /**
- * @param array<array-key, string> $currentBet
+ * Проверка формы добавления ставки на лот
+ * @param mysql $link Связь с БД
+ * @param array<array-key, array<array-key, mixed>> $currentBet Текущая максимальная ставка
+ * @param array<array-key, array<array-key, mixed>> $lotBetsList Все ставки на лот
+ * @return array Массив ошибок, пустой - если ошибок нет
  */
-function addBetFormValidate(mysqli $link, array $currentBet) {
+function addBetFormValidate(mysqli $link, array $currentBet, array $lotBetsList) {
     $errors = [];
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -212,8 +222,8 @@ function addBetFormValidate(mysqli $link, array $currentBet) {
     }
  
     $rules = [
-        'cost' => function() use ($currentBet) {
-            return validateBet('cost', $currentBet);
+        'cost' => function() use ($currentBet, $lotBetsList) {
+            return validateBet('cost', $currentBet, $lotBetsList);
         }
     ];
     
@@ -248,6 +258,12 @@ function addBetFormValidate(mysqli $link, array $currentBet) {
 }
 
 
+/**
+ * Указание победителя лота
+ * @param mysql $link Связь с БД
+ * @param int $lotId ID победного лота
+ * @param int $winnerId ID пользователя-победителя
+ */
 function updateWinner(mysqli $link, int $lotId, int $winnerId) {   
         $sql = 'UPDATE lots SET winner_id = ? '
              . 'WHERE id = ?';

@@ -96,6 +96,25 @@ switch ($source) {
         ]);
         break;
 
+    case 'lots-by-category':     
+        $totalLots = countAdsListByCategory($link);
+
+        $limit = 9; // лотов на странице
+        $currentPage = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+
+        $offset = ($currentPage - 1) * $limit;
+        $totalPages = ceil($totalLots / $limit);
+
+        $ads = getAdsListByCategory($link, $offset, $limit);
+
+        $pageContent = include_template('lots-by-category.php',[
+            'categories' => $categories,
+            'ads' => $ads,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages
+        ]);
+        break;
+
     case 'lot':     
         $id = $_GET['id'] ?? null;
         if (!$id || !ctype_digit($id)) {
@@ -114,7 +133,7 @@ switch ($source) {
         $bet = getMaxBet($link, $id); 
         $lotBets = getLotBets($link, $id);
 
-        $errors = addBetFormValidate($link, $bet);
+        $errors = addBetFormValidate($link, $bet, $lotBets);
 
         $pageContent = include_template('lot.php',[
             'ad' => $ad,
