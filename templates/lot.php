@@ -20,7 +20,7 @@
               <span class="lot-item__cost"><?= htmlspecialchars(formatPrice($bet["current_price"])) ?></span>
             </div>
             <div class="lot-item__min-cost">
-              Мин. ставка <span><?= htmlspecialchars(formatPrice($ad["bet_step"])) ?></span>
+              Мин. ставка <span><?= htmlspecialchars(formatPrice($bet["current_price"] + $bet["bet_step"])) ?></span>
             </div>
           </div>
           <?php if ($ad["author_id"] != $_SESSION["id"]): ?>
@@ -34,6 +34,15 @@
               </p>
               <button type="submit" class="button">Сделать ставку</button>
             </form>
+                <?php if (isset($errors)): ?>
+                    <div class="form__errors">
+                        <ul>
+                            <?php foreach ($errors as $val): ?>
+                                <li><strong><?= $val; ?></strong></li>
+                            <?php endforeach; ?>
+                        </uL>
+                    </div>
+                <?php endif; ?>
           <?php endif; ?>
         </div>
       <?php endif; ?>
@@ -46,7 +55,7 @@
               <td class="history__price"><?= formatPrice($lBet['amount']); ?></td>
               <td class="history__time"><?= formatTimeAgo($lBet['date_add']); ?></td>
             </tr>
-            <? endforeach; ?>
+            <?php endforeach; ?>
           </table>
       </div>
     </div>

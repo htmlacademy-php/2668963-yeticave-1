@@ -9,7 +9,7 @@ CREATE TABLE users (
     date_add TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     email VARCHAR(128) NOT NULL UNIQUE,
     name VARCHAR(128) NOT NULL,
-    password CHAR(32) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     contact VARCHAR(128) NOT NULL
 );
 

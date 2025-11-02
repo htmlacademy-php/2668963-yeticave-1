@@ -143,7 +143,11 @@ function include_template($name, array $data = []) {
     return $result;
 }
 
-# Функция форматирования цены: 159999 -> 159 999 ₽
+/**
+ * Форматирует цену: 159999 -> 159 999 ₽
+ * @param string $price Строка с числом
+ * @return string Итоговая отформатированная строка
+ */
 function formatPrice(string $price) {
     $price = ceil($price);
 
@@ -154,7 +158,11 @@ function formatPrice(string $price) {
     return number_format($price, 0, '', ' ')." ₽";
 }
 
-# Функция расчёта времени до определённой даты в формате ЧЧ:ММ
+/**
+ * Расчитывает время до определённой даты в формате ЧЧ:ММ
+ * @param string $date Строка с датой в виде "2025-11-29 00:00:00"
+ * @return array Массив вида [ЧЧ, ММ]
+ */
 function getTimeToDate(string $date) {
     $currentDate = date_create("now");
     $finishDate = date_create($date);
@@ -166,7 +174,11 @@ function getTimeToDate(string $date) {
     return [$hours, $minutes];
 }
 
-
+/**
+ * Проверяет поле на заполнение
+ * @param string $fieldName Имя поля формы
+ * @return string|null Сообщение об ошибке или null, если ошибок нет
+ */
 function validateFilled(string $fieldName) {
     if (empty($_POST[$fieldName])) {
         return "Поле $fieldName должно быть заполнено";
@@ -175,7 +187,10 @@ function validateFilled(string $fieldName) {
 }
 
 /**
- * @param array<array-key, string> $allowedCatIdsList
+ * Проверка существования категории при добавлении лота
+ * @param string $fieldName Имя поля формы
+ * @param array<array-key, string> $allowedCatIdsList Массив допустимых ID категорий из БД
+ * @return string|null Сообщение об ошибке или null, если ошибок нет
  */
 function validateCategory(string $fieldName, array $allowedCatIdsList) {
     $fieldValue = $_POST[$fieldName];
@@ -185,6 +200,12 @@ function validateCategory(string $fieldName, array $allowedCatIdsList) {
     }
     return null;
 }
+
+/**
+ * Проверка стоимости товара при добавлении лота
+ * @param string $fieldName Имя поля формы
+ * @return string|null Сообщение об ошибке или null, если ошибок нет
+ */
 function isCorrectPrice(string $fieldName) {
     $fieldValue = $_POST[$fieldName];
 
@@ -193,6 +214,12 @@ function isCorrectPrice(string $fieldName) {
     }
     return null;
 }
+
+/**
+ * Проверка ставки на товар при добавлении лота
+ * @param string $fieldName Имя поля формы
+ * @return string|null Сообщение об ошибке или null, если ошибок нет
+ */
 function isCorrectBet(string $fieldName) {
     $fieldValue = $_POST[$fieldName];
 
@@ -203,9 +230,12 @@ function isCorrectBet(string $fieldName) {
 }
 
 /**
- * @param array<array-key, string> $notAllowedEmails
+ * Проверка корректности имейла при регистрации
+ * @param string $fieldName Имя поля формы
+ * @param array<array-key, string> $notAllowedEmails Массив недопустимых имейлов
+ * @return string|null Сообщение об ошибке или null, если ошибок нет
  */
-function validateEmail(string $fieldName, array $notAllowedEmails)  {
+function validateEmail(string $fieldName, array $notAllowedEmails) {
     $fieldValue = $_POST[$fieldName];
 
     if (empty($fieldValue)) {
@@ -224,9 +254,12 @@ function validateEmail(string $fieldName, array $notAllowedEmails)  {
 }
 
 /**
- * @param array<array-key, string> $userEmails
+ * Проверка корректности имейла при входе
+ * @param string $fieldName Имя поля формы
+ * @param array<array-key, string> $userEmails Массив зарегистрированных имейлов
+ * @return string|null Сообщение об ошибке или null, если ошибок нет
  */
-function validateLoginEmail(string $fieldName, array $userEmails)  {
+function validateLoginEmail(string $fieldName, array $userEmails) {
     $fieldValue = $_POST[$fieldName];
     $flipedUserEmails = array_flip($userEmails);
 
@@ -245,25 +278,41 @@ function validateLoginEmail(string $fieldName, array $userEmails)  {
     return "Пользователь не существует, пожалуйста, зарегистрируйтесь";
 }
 
-function getPostVal(string $fieldName)
-{
+/**
+ * Получение значения по параметру из массива $_POST
+ * @param string $fieldName Имя поля формы
+ * @return string Значение поля или пустая строка, если поле не установлено
+ */
+function getPostVal(string $fieldName) {
     return $_POST[$fieldName] ?? '';
 }
 
+/**
+ * Получение значения по параметру из массива $_GET
+ * @param string $fieldName Имя поля формы
+ * @return string Значение поля или пустая строка, если поле не установлено
+ */
 function getGetVal(string $fieldName)
 {
     return $_GET[$fieldName] ?? '';
 }
 
-
 /**
- * @param array<array-key, string> $currentBet
+ * Проверка корректности ставки на лот
+ * @param string $fieldName Имя поля формы
+ * @param array<array-key, array<array-key, mixed>> $currentBet Текущая максимальная ставка
+ * @param array<array-key, array<array-key, mixed>> $lotBetsList Все ставки на лот
+ * @return string|null Сообщение об ошибке или null, если ошибок нет
  */
-function validateBet(string $fieldName, array $currentBet) {
+function validateBet(string $fieldName, array $currentBet, array $lotBetsList) {
     $fieldValue = $_POST[$fieldName];
 
     if (empty($fieldValue)) {
         return validateFilled($fieldName);
+    }
+
+    if ($lotBetsList && ($lotBetsList[0]['user_id'] === $_SESSION['id'])) {
+         return "Ваша ставка уже добавлена";
     }
 
     if ((filter_var($fieldValue, FILTER_VALIDATE_INT) === false) || ($fieldValue < $currentBet["current_price"] + $currentBet["bet_step"])) {
@@ -275,9 +324,8 @@ function validateBet(string $fieldName, array $currentBet) {
 
 /**
  * Преобразует дату в формат "5 минут назад", "вчера, в 21:30" и т.д.
- *
  * @param string $date Дата в формате "Y-m-d H:i:s"
- * @return string
+ * @return string Итоговая строка
  */
 function formatTimeAgo(string $date): string
 {
